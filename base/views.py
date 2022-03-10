@@ -10,8 +10,8 @@ def home(request):
 
 
 def room(request, pk):
-    room = Room.objects.get(id=pk)
-    context = {'room': room}
+    selected_room = Room.objects.get(id=pk)
+    context = {'room': selected_room}
     return render(request, 'base/room.html', context)
 
 
@@ -33,15 +33,23 @@ def create_room(request):
 
 def update_room(request, pk):
     # get room object data from id
-    room = Room.objects.get(id=pk)
+    selected_room = Room.objects.get(id=pk)
     # pre-fill the form using room data
-    form = RoomForm(instance=room)
+    form = RoomForm(instance=selected_room)
 
     if request.method == "POST":
         # instance is defined to update the existing data instead of creating new one
-        form = RoomForm(request.POST, instance=room)
+        form = RoomForm(request.POST, instance=selected_room)
         if form.is_valid():
             form.save()
             return redirect('home')
     context = {'form': form}
     return render(request, 'base/room_form.html', context)
+
+
+def delete_room(request, pk):
+    selected_room = Room.objects.get(id=pk)
+    if request.method == "POST":
+        selected_room.delete()
+        return redirect('home')
+    return render(request, 'base/delete.html', {'obj': selected_room})
