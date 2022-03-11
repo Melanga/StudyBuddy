@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -78,6 +79,9 @@ def update_room(request, pk):
     # pre-fill the form using room data
     form = RoomForm(instance=selected_room)
 
+    if request.user != selected_room.host:
+        return HttpResponse('Only host can edit room attributes...')
+
     if request.method == "POST":
         # instance is defined to update the existing data instead of creating new one
         form = RoomForm(request.POST, instance=selected_room)
@@ -91,6 +95,10 @@ def update_room(request, pk):
 @login_required(login_url='login')
 def delete_room(request, pk):
     selected_room = Room.objects.get(id=pk)
+
+    if request.user != selected_room.host:
+        return HttpResponse('Only host can edit room attributes...')
+
     if request.method == "POST":
         selected_room.delete()
         return redirect('home')
