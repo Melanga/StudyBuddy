@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -52,6 +53,8 @@ def room(request, pk):
     return render(request, 'base/room.html', context)
 
 
+# if user is not logged in, user is redirected to login page when create room request
+@login_required(login_url='login')
 def create_room(request):
     form = RoomForm
     # POST method is defined in room_form.html as form submission and http request come from same address as from url,
@@ -68,6 +71,7 @@ def create_room(request):
     return render(request, 'base/room_form.html', context)
 
 
+@login_required(login_url='login')
 def update_room(request, pk):
     # get room object data from id
     selected_room = Room.objects.get(id=pk)
@@ -84,6 +88,7 @@ def update_room(request, pk):
     return render(request, 'base/room_form.html', context)
 
 
+@login_required(login_url='login')
 def delete_room(request, pk):
     selected_room = Room.objects.get(id=pk)
     if request.method == "POST":
