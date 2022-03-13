@@ -79,9 +79,21 @@ def room(request, pk):
             room=selected_room,
             body=request.POST.get('body')
         )
+        selected_room.participants.add(request.user)
         return redirect('room', pk=selected_room.id)
     context = {'room': selected_room, 'messages': room_messages, 'participants': participants}
     return render(request, 'base/room.html', context)
+
+
+@login_required(login_url='login')
+def delete_message(request, pk):
+    message = Message.objects.get(id=pk)
+    if request.user != message.user:
+        return HttpResponse('Only host can edit room attributes...')
+    if request.method == "POST":
+        message.delete()
+        return redirect('room', pk=message.room.id)
+    return render(request, 'base/delete.html', {'obj': message})
 
 
 # if user is not logged in, user is redirected to login page when create room request
