@@ -88,6 +88,12 @@ def room(request, pk):
     return render(request, 'base/room.html', context)
 
 
+def user_profile(request, pk):
+    selected_user = User.objects.get(id=pk)
+    context = {'user': selected_user}
+    return render(request, 'base/profile.html', context)
+
+
 @login_required(login_url='login')
 def delete_message(request, pk):
     message = Message.objects.get(id=pk)
