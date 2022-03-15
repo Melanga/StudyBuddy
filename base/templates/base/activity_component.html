@@ -2,7 +2,7 @@
 <hr>
 {% for message in recent_messages %}
     <div>
-        <small>@{{ message.user }} {{ message.created | timesince }} ago</small><br>
+        <small><a href="{% url 'user-profile' message.user.id %}">@{{ message.user }}</a> {{ message.created | timesince }} ago</small><br>
         <small>replied to "{{ message.room }}"</small>
         <p>{{ message }}</p>
         {% if request.user == message.user %}
