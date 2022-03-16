@@ -112,19 +112,28 @@ def delete_message(request, pk):
 @login_required(login_url='login')
 def create_room(request):
     form = RoomForm
+    topics = Topic.objects.all()
     # POST method is defined in room_form.html as form submission and http request come from same address as from url,
     # so we need to check if it is form submission or page request and is it is a POST request from form,
     # we need to handle it instead of rendering the html content.
     if request.method == "POST":
         # to access data and manually validate if you want
         # request.POST.get('name')
-        form = RoomForm(request.POST)
-        if form.is_valid():
-            selected_room = form.save(commit=False)
-            selected_room.host = request.user
-            selected_room.save()
-            return redirect('home')
-    context = {'form': form}
+        topic_name = request.POST.get('topic')
+        topic, created = Topic.objects.get_or_create(name=topic_name)
+        Room.objects.create(
+            host=request.user,
+            topic=topic,
+            name=request.POST.get('name'),
+            description=request.POST.get('description'),
+        )
+        # form = RoomForm(request.POST)
+        # if form.is_valid():
+        #     selected_room = form.save(commit=False)
+        #     selected_room.host = request.user
+        #     selected_room.save()
+        return redirect('home')
+    context = {'form': form, 'topics': topics}
     return render(request, 'base/room_form.html', context)
 
 
@@ -134,17 +143,24 @@ def update_room(request, pk):
     selected_room = Room.objects.get(id=pk)
     # pre-fill the form using room data
     form = RoomForm(instance=selected_room)
+    topics = Topic.objects.all()
 
     if request.user != selected_room.host:
         return HttpResponse('Only host can edit room attributes...')
 
     if request.method == "POST":
+        topic_name = request.POST.get('topic')
+        topic, created = Topic.objects.get_or_create(name=topic_name)
         # instance is defined to update the existing data instead of creating new one
-        form = RoomForm(request.POST, instance=selected_room)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
-    context = {'form': form}
+        selected_room.name = request.POST.get('name')
+        selected_room.topic = topic
+        selected_room.description = request.POST.get('description')
+        selected_room.save()
+        # form = RoomForm(request.POST, instance=selected_room)
+        # if form.is_valid():
+        #     form.save()
+        return redirect('home')
+    context = {'form': form, 'topics': topics, 'room': selected_room}
     return render(request, 'base/room_form.html', context)
 
 
