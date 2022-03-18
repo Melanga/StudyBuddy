@@ -75,11 +75,11 @@ def home(request):
         Q(name__icontains=q) |
         Q(description__icontains=q)
     )
-    topics = Topic.objects.all()
+    topics = Topic.objects.all()[0:5]
     room_count = rooms.count()
     recent_messages = Message.objects.filter(
         Q(room__topic__name__icontains=q)
-    )
+    )[0:5]
     context = {'rooms': rooms, 'topics': topics, 'room_count': room_count, 'recent_messages': recent_messages}
     return render(request, 'base/home.html', context)
 
@@ -187,3 +187,10 @@ def delete_room(request, pk):
         selected_room.delete()
         return redirect('home')
     return render(request, 'base/delete.html', {'obj': selected_room})
+
+
+def topics_page(request):
+    q = request.GET.get('q') if request.GET.get('q') is not None else ''
+    room_count = Room.objects.all().count()
+    topics = Topic.objects.filter(name__icontains=q)
+    return render(request, 'base/topics.html', {'topics': topics, 'room_count': room_count})
