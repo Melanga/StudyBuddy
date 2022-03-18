@@ -79,7 +79,7 @@ def home(request):
     room_count = rooms.count()
     recent_messages = Message.objects.filter(
         Q(room__topic__name__icontains=q)
-    )[0:5]
+    )[0:3]
     context = {'rooms': rooms, 'topics': topics, 'room_count': room_count, 'recent_messages': recent_messages}
     return render(request, 'base/home.html', context)
 
@@ -194,3 +194,8 @@ def topics_page(request):
     room_count = Room.objects.all().count()
     topics = Topic.objects.filter(name__icontains=q)
     return render(request, 'base/topics.html', {'topics': topics, 'room_count': room_count})
+
+
+def activity_page(request):
+    recent_messages = Message.objects.all()[0:50]
+    return render(request, 'base/activity.html', {'messages': recent_messages})
